@@ -4,10 +4,10 @@ var exports = module.exports = {}
 const pg = require('pg')
 // Configuration pgsql
 const Bizbee = new pg.Pool({
-  user: 'postgres',
+  user: 'bizzbee',
   host: '127.0.0.1',
-  database: 'postgres',
-  password: 'root',
+  database: 'bizzbee',
+  password: 'bizzbee',
   port: 5432
 });
 
