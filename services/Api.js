@@ -19,6 +19,7 @@ exports.tryConnect = function (login, password) {
     return new Promise (( resolve, reject) => {
         // La requête est a passé en requête parametré
         var sql = "SELECT id, login, mdp FROM bizzbee._apiculteur WHERE login = '"+login+"' AND  mdp = '"+password+"'"
+        console.log(sql)
         // Execution de la requete
         Bizbee.query(sql, (err, res) => {
             if(err)
