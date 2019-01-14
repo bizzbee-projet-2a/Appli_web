@@ -1,32 +1,29 @@
 // Initialisation des exports
 var exports = module.exports = {}
-// Import de mysql
-var mysql = require('mysql');
-
-// Connection à la base de données => gérer erreurs à faire
-const connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : '',
-  database : 'bizbee'
+// Import de pgsql
+const pg = require('pg')
+// Configuration pgsql
+const Bizbee = new pg.Pool({
+  user: 'postgres',
+  host: '127.0.0.1',
+  database: 'postgres',
+  password: 'root',
+  port: 5432
 });
-connection.connect();
 
 // Export de la connection (inutile pour le moment)
-exports.connection = connection;
+exports.connection = Bizbee;
 
 exports.tryConnect = function (login, password) {
     // Je retourne une promesse pour gerer l'asynchronité
     return new Promise (( resolve, reject) => {
         // La requête est a passé en requête parametré
-        var sql = "SELECT * FROM USER WHERE NAME ='" + login + "' AND PASSWORD = '" + password + "'"
+        var sql = "SELECT id, login, mdp FROM bizzbee._apiculteur WHERE login = '"+login+"' AND  mdp = '"+password+"'"
         // Execution de la requete
-        connection.query( sql, (err, rows) => {
-            if (err)
-                // Si erreur je reject
-                return reject(err)
-            // Sinon j'envoie la réponse
-            resolve(JSON.parse(JSON.stringify(rows)))
+        Bizbee.query(sql, (err, res) => {
+            if(err)
+              return reject(err)
+            resolve(JSON.parse(JSON.stringify(res)))
         });
     });
 }
