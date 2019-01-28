@@ -1,9 +1,15 @@
 <template>
   <div class="Composant">
-    <div class="container">
+    <div class="container" v-if="isLogged">
       Ruche: {{ name }}
      <hr>
      <highcharts class="chart" :options="chartOptions"  style="width:60%;margin:0 auto;"></highcharts>
+    </div>
+    <div v-else class="container">
+      Connectez vous d'abord
+      <br>
+      <br>
+      <button type="button" name="button" class="btn btn-primary btn-sm" v-on:click="login()">Connexion</button>
     </div>
   </div>
 </template>
@@ -13,6 +19,7 @@ export default {
   name: 'Composant',
   data () {
     return {
+      isLogged: false,
       id: this.$session.get('composantVueId'),
       name: this.$session.get('composantVueNom'),
       humidite: {},
@@ -61,6 +68,9 @@ export default {
   },
   created: function () {
     this.getData()
+    if ((this.$session.get('login') !== undefined) && (this.$session.get('login') !== '')) {
+      this.isLogged = true
+    }
   },
   methods: {
     getData: async function () {
@@ -87,6 +97,9 @@ export default {
         return newObj
       })
       this.chartOptions.series[2].data = tmp
+    },
+    login: function () {
+      this.$router.push({name: 'Login'})
     }
   }
 

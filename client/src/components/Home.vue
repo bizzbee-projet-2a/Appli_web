@@ -46,6 +46,9 @@
       </div>
       <div v-else>
         Connectez vous d'abord
+        <br>
+        <br>
+        <button type="button" name="button" class="btn btn-primary btn-sm" v-on:click="login()">Connexion</button>
       </div>
     </div>
   </div>
@@ -83,6 +86,9 @@ export default {
     changePassword: function () {
       Endpoint.changePassword(this.data.data.informations[0].login, this.password)
       $('#myModal').modal('hide')
+    },
+    login: function () {
+      this.$router.push({name: 'Login'})
     }
   }
 

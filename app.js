@@ -36,6 +36,7 @@ app.post('/login', (req, res) => {
 
 })
 
+// Endpoint pour changer un mot de passe
 app.post('/changePassword', (req, res) => {
   const login = req.body.login
   const password = req.body.password
@@ -46,7 +47,7 @@ app.post('/changePassword', (req, res) => {
   })
 })
 
-
+// Endpoint pur recuperer toutes les données d'un apiculteur
 app.get('/apiculteurInfos', (req, res) => {
   const apiculteur = req.query.apiculteur
   Api.apiculteur( apiculteur).then(function(rows){
@@ -56,6 +57,7 @@ app.get('/apiculteurInfos', (req, res) => {
   })
 })
 
+// Endpoint pour recuperer toutes les données d'une ruche 
 app.get('/rucheInfos', (req, res) => {
   const ruche = req.query.ruche
   Api.getInfoRuche( ruche).then(function(rows){
