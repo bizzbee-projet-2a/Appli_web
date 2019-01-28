@@ -27,13 +27,42 @@ app.post('/login', (req, res) => {
       res.sendStatus(200)
     } else {
     // Sinon return 401
-      res.sendStatus(401)
+      res.sendStatus(201)
     }
   }).catch(function(error){
     // Si error : return 401
-      res.sendStatus(401)
+      res.sendStatus(201)
   })
 
+})
+
+app.post('/changePassword', (req, res) => {
+  const login = req.body.login
+  const password = req.body.password
+  Api.changePassword(login, password).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
+
+app.get('/apiculteurInfos', (req, res) => {
+  const apiculteur = req.query.apiculteur
+  Api.apiculteur( apiculteur).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+app.get('/rucheInfos', (req, res) => {
+  const ruche = req.query.ruche
+  Api.getInfoRuche( ruche).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
 })
 
 // Lancement du script sur le port 8081
