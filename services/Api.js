@@ -2,6 +2,7 @@
 var exports = module.exports = {}
 // Import de pgsql
 const pg = require('pg')
+const fs = require('fs')
 // Configuration pgsql
 const Bizbee = new pg.Pool({
   user: 'postgres',
@@ -85,6 +86,13 @@ exports.apiculteur = async function(login) {
     // Ajout poids
     all = await exports.getPoids(obj.composant[i].id_composant)
     obj.composant[i].poids = all[Object.keys(all).length - 1].val
+    // Ajout image en base64 png
+    const path = './data/img/' + obj.composant[i].id_composant + '.png'
+    if(fs.existsSync(path)) {
+      obj.composant[i].img = new Buffer(fs.readFileSync(path)).toString('base64')
+    } else {
+      obj.composant[i].img = ''
+    }
   }
   return obj
 }

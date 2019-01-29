@@ -4,9 +4,10 @@ const cors = require('cors')
 const app = express()
 const bodyParser = require('body-parser')
 const Api = require('./services/Api.js')
+const fs = require('fs')
 
 // Parametrage d'express pour permetre le CORS et utiliser le body des requêtes POST
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '2000kb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors())
 
@@ -47,7 +48,17 @@ app.post('/changePassword', (req, res) => {
   })
 })
 
-// Endpoint pur recuperer toutes les données d'un apiculteur
+app.post('/sendImage', (req, res) => {
+  const image = req.body.file
+  const id = req.body.idRuche
+  console.log('Gonna change dude id: ' + id);
+  fs.writeFile('./data/img/' + id +'.png', image, {encoding: 'base64'}, function(err) {
+    if(err) console.log(err);
+    console.log('success');
+  })
+})
+
+// Endpoint pour recuperer toutes les données d'un apiculteur
 app.get('/apiculteurInfos', (req, res) => {
   const apiculteur = req.query.apiculteur
   Api.apiculteur( apiculteur).then(function(rows){
@@ -57,7 +68,7 @@ app.get('/apiculteurInfos', (req, res) => {
   })
 })
 
-// Endpoint pour recuperer toutes les données d'une ruche 
+// Endpoint pour recuperer toutes les données d'une ruche
 app.get('/rucheInfos', (req, res) => {
   const ruche = req.query.ruche
   Api.getInfoRuche( ruche).then(function(rows){
@@ -66,6 +77,7 @@ app.get('/rucheInfos', (req, res) => {
     res.send(err)
   })
 })
+
 
 // Lancement du script sur le port 8081
 app.listen(8081, function () {

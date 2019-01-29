@@ -34,6 +34,15 @@
         <hr>
         <div v-for="composant in data.data.composant" v-bind:key="composant.id">
           <u>{{composant.data[0].nom}} :</u>
+          <br>
+          <img :src="'data:image/png;base64,' + composant.img" alt="Image de la ruche" v-if="composant.img != ''">
+          <br>
+          <label :for="composant.id_composant">
+            <small>Changer l'image</small>
+            <input type="file" :id="composant.id_composant" placeholder="Image" v-on:change="uploadImage" style="display:none;" :name="composant.id_composant">
+          </label>
+          <br>
+          <br>
           <ul>
             <li>Temperature: {{ composant.temperature }} </li>
             <li>Humidité: {{ composant.humidite }} </li>
@@ -43,6 +52,7 @@
           <hr>
         </div>
         <button type="button" name="button" class="btn btn-danger btn-sm" v-on:click="disconnect()">Déconnexion</button>
+        <br><br>
       </div>
       <div v-else>
         Connectez vous d'abord
@@ -62,7 +72,8 @@ export default {
     return {
       data: 'Accueil bizzbee',
       isLogged: false,
-      password: ''
+      password: '',
+      file: ''
     }
   },
   created: function () {
@@ -89,6 +100,18 @@ export default {
     },
     login: function () {
       this.$router.push({name: 'Login'})
+    },
+    uploadImage: async function (globalEvent) {
+      const file = globalEvent.target.files[0]
+      console.log('Changement: ' + parseInt(globalEvent.target.id))
+      var reader = new FileReader()
+      reader.onload = async function (event) {
+        await Endpoint.sendImage(event.target.result.split(';base64,').pop(), parseInt(globalEvent.target.id))
+        document.location.reload(true)
+      }
+     reader.readAsDataURL(file)
+    },
+    loadUpload: function (files) {
     }
   }
 
@@ -100,6 +123,12 @@ export default {
 
 .container {
   margin-top: 2em;
+}
+
+img {
+  border-radius: 15px;
+  width: 14em;
+  margin: 1em 0;
 }
 
 </style>
