@@ -41,6 +41,17 @@ exports.getRucherByProprio =  function (idApiculteur) {
   });
 }
 
+exports.allComposant =  function () {
+  return new Promise(function(resolve, reject) {
+    const sql = "SELECT * FROM bizzbee._composant";
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
 exports.changePassword =  function (login, password) {
   return new Promise(function(resolve, reject) {
     const sql = "UPDATE bizzbee._apiculteur SET mdp ='"+ password +"' WHERE login = '" + login + "'";
@@ -67,6 +78,25 @@ exports.getApiculteurInformations = function (login) {
         resolve(JSON.parse(JSON.stringify(res.rows)))
       })
     });
+}
+// Arbre des ruche / ruchers
+// MERCI STACK OVER FLOW TOUJOURS LA POUR MOI QUAND JE SAIS PAS CODER
+exports.getTree = async function (id) {
+  var all = await exports.allComposant()
+  var map = {};
+    for(var i = 0; i < all.length; i++){
+        var obj = all[i];
+        obj.items= [];
+        map[obj.id] = obj;
+        var parent = obj.id_parent || '-';
+        if(!map[parent]){
+            map[parent] = {
+                items: []
+            };
+        }
+        map[parent].items.push(obj);
+    }
+    return map['-'].items;
 }
 
 exports.apiculteur = async function(login) {

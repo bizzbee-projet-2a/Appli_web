@@ -78,6 +78,16 @@ app.get('/rucheInfos', (req, res) => {
   })
 })
 
+// Arbre ruche /rucher
+app.get('/getTree', (req, res) => {
+  const ruche = req.query.ruche
+  Api.getTree(ruche).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
 
 // Lancement du script sur le port 8081
 app.listen(8081, function () {
