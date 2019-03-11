@@ -28,28 +28,35 @@
             </div>
           </div>
         </div>
-
-        <h1>Bonjour {{ data.data.informations[0].login }}</h1>
-        <small v-on:click="passwordModif">Modifier le mot de passe</small>
-        <hr>
-        <div v-for="composant in data.data.composant" v-bind:key="composant.id">
-          <u>{{composant.data[0].nom}} :</u>
-          <br>
-          <img :src="'data:image/png;base64,' + composant.img" alt="Image de la ruche" v-if="composant.img != ''">
-          <br>
-          <label :for="composant.id_composant">
-            <small>Changer l'image</small>
-            <input type="file" :id="composant.id_composant" placeholder="Image" v-on:change="uploadImage" style="display:none;" :name="composant.id_composant">
-          </label>
-          <br>
-          <br>
-          <ul>
-            <li>Temperature: {{ composant.temperature }} </li>
-            <li>Humidité: {{ composant.humidite }} </li>
-            <li>Poids: {{ composant.poids }} </li>
-          </ul>
-          <router-link :to="{ name: 'Composant', params: { id: composant.id_composant, name: composant.data[0].nom }}">Plus d'informations</router-link>
+        <div v-if="loaded">
+          <h1>Bonjour {{ data.data.informations[0].login }}</h1>
+          <small v-on:click="passwordModif">Modifier le mot de passe</small>
           <hr>
+          <div v-for="composant in data.data.composant" v-bind:key="composant.id">
+            <div v-if="composant.data">
+              <u>{{composant.data[0].nom}} :</u>
+
+              <br>
+              <img :src="'data:image/png;base64,' + composant.img" alt="Image de la ruche" v-if="composant.img != ''">
+              <br>
+              <label :for="composant.id_composant">
+                <small>Changer l'image</small>
+                <input type="file" :id="composant.id_composant" placeholder="Image" v-on:change="uploadImage" style="display:none;" :name="composant.id_composant">
+              </label>
+              <br>
+              <br>
+              <ul>
+                <li>Temperature: {{ composant.temperature }} </li>
+                <li>Humidité: {{ composant.humidite }} </li>
+                <li>Poids: {{ composant.poids }} </li>
+              </ul>
+              <router-link :to="{ name: 'Composant', params: { id: composant.id_composant, name: composant.data[0].nom }}">Plus d'informations</router-link>
+              <hr>
+            </div>
+            <div v-else>
+              Rucher : {{composant.id_composant}}
+            </div>
+          </div>
         </div>
         <button type="button" name="button" class="btn btn-danger btn-sm" v-on:click="disconnect()">Déconnexion</button>
         <br><br>
@@ -72,6 +79,7 @@ export default {
     return {
       data: 'Accueil bizzbee',
       isLogged: false,
+      loaded: false,
       password: '',
       file: ''
     }
@@ -85,6 +93,8 @@ export default {
   methods: {
     getApiculteurInformations: async function () {
       this.data = await Endpoint.apiculteurInformations(this.$session.get('login'))
+      this.traiterDonnees()
+      this.loaded = true
     },
     disconnect: function () {
       this.isLogged = false
@@ -93,6 +103,8 @@ export default {
     },
     passwordModif: function () {
       $('#myModal').modal()
+    },
+    traiterDonnees: function () {
     },
     changePassword: function () {
       Endpoint.changePassword(this.data.data.informations[0].login, this.password)
@@ -109,7 +121,7 @@ export default {
         await Endpoint.sendImage(event.target.result.split(';base64,').pop(), parseInt(globalEvent.target.id))
         document.location.reload(true)
       }
-     reader.readAsDataURL(file)
+      reader.readAsDataURL(file)
     },
     loadUpload: function (files) {
     }

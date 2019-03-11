@@ -14,7 +14,6 @@ export default {
     return axios.post('http://localhost:8081/changePassword', {login: login, password: newPassword})
   },
   sendImage (formData, idRuche) {
-    console.log('Gonna post with id: ' + idRuche)
     return axios.post('http://localhost:8081/sendImage', {file: formData, idRuche: idRuche})
   }
 }

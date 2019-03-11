@@ -17,13 +17,13 @@ app.use(cors())
 // Return 401 : Unauthorized
 app.post('/login', (req, res) => {
   // Récuperation des parametres
+  console.log(req.body);
   const login = req.body.login
   const password = req.body.password
   // J'execute la requête dans mon module Api
   Api.tryConnect(login, password).then(function(rows){
     // Si il y a un user, return 200
-    console.log("ERREUR ?");
-    console.log(rows)
+    console.log(rows);
     if(rows.rowCount === 1) {
       res.sendStatus(200)
     } else {
@@ -48,6 +48,17 @@ app.post('/changePassword', (req, res) => {
   })
 })
 
+
+app.get('/test', (req, res) => {
+  const apiculteur = req.query.apiculteur
+  console.log(apiculteur)
+  Api.test( apiculteur).then(function(rows){
+    res.status(200).send(rows)
+    console.log(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
 app.post('/sendImage', (req, res) => {
   const image = req.body.file
   const id = req.body.idRuche
@@ -61,8 +72,10 @@ app.post('/sendImage', (req, res) => {
 // Endpoint pour recuperer toutes les données d'un apiculteur
 app.get('/apiculteurInfos', (req, res) => {
   const apiculteur = req.query.apiculteur
+  console.log(apiculteur)
   Api.apiculteur( apiculteur).then(function(rows){
     res.status(200).send(rows)
+    console.log(rows)
   }).catch(function(err){
     res.send(err)
   })
@@ -78,6 +91,19 @@ app.get('/rucheInfos', (req, res) => {
   })
 })
 
+
+app.get('/estRucher', (req, res) => {
+  const ruche = req.query.ruche
+  console.log(ruche);
+  Api.estRucher( ruche).then(function(rows){
+    res.send(rows)
+  }).catch(function(err){
+    console.log(err);
+    res.send(err)
+  })
+})
+
+
 // Arbre ruche /rucher
 app.get('/getTree', (req, res) => {
   const ruche = req.query.ruche
@@ -87,6 +113,48 @@ app.get('/getTree', (req, res) => {
     res.send(err)
   })
 })
+
+/**
+
+C R U D
+
+
+**/
+
+app.post('/ajout_humidite', (req, res) => {
+  const ruche = req.body.idRuche
+  const mesure = req.body.mesure
+  const date = req.body.date
+  Api.ajout_humidite(ruche, mesure, date).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
+app.post('/ajout_temperature', (req, res) => {
+  const ruche = req.body.idRuche
+  const mesure = req.body.mesure
+  const date = req.body.date
+  Api.ajout_temperature(ruche, mesure, date).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
+app.post('/ajout_poids', (req, res) => {
+  const ruche = req.body.idRuche
+  const mesure = req.body.mesure
+  const date = req.body.date
+  Api.ajout_poids(ruche, mesure, date).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
+
 
 
 // Lancement du script sur le port 8081
