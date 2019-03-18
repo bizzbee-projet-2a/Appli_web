@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export default {
   apiculteurInformations (login) {
-    return axios.get('http://localhost:8081/apiculteurInfos', {params: {apiculteur: login}})
+    return axios.get('http://localhost:8081/test', {params: {apiculteur: login}})
   },
   rucheData (id) {
     return axios.get('http://localhost:8081/rucheInfos', {params: {ruche: id}})
@@ -15,5 +15,8 @@ export default {
   },
   sendImage (formData, idRuche) {
     return axios.post('http://localhost:8081/sendImage', {file: formData, idRuche: idRuche})
+  },
+  rucheActualData (id) {
+    return axios.get('http://localhost:8081/getRucheActualData', {params: {ruche: id}})
   }
 }

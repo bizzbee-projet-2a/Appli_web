@@ -13,7 +13,7 @@
           </div>
           <div class="form-group">
             <label for="">Mot de passe</label>
-            <input type="password" name="" value="" class="form-control" placeholder="Mot de passe" v-model="password">
+            <input type="password" name="" value="" class="form-control" placeholder="Mot de passe" v-model="password" autocomplete="current-password">
           </div>
           <input type="submit" name="" value="Connexion" class="btn btn-primary">
         </form>

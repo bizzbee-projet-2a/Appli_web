@@ -17,7 +17,7 @@
               <div class="modal-body">
                   <div class="form-group">
                     <label for="">Nouveau mot de passe:</label>
-                    <input type="password" name="" value="" class="form-control" v-model="password">
+                    <input type="password" name="" value="" class="form-control" v-model="password" autocomplete="current-password">
                   </div>
               </div>
               <div class="modal-footer">
@@ -28,7 +28,10 @@
             </div>
           </div>
         </div>
+
         <div v-if="loaded">
+          <tree :tree-data="data.data"></tree>
+        <!--
           <h1>Bonjour {{ data.data.informations[0].login }}</h1>
           <small v-on:click="passwordModif">Modifier le mot de passe</small>
           <hr>
@@ -57,6 +60,7 @@
               Rucher : {{composant.id_composant}}
             </div>
           </div>
+        -->
         </div>
         <button type="button" name="button" class="btn btn-danger btn-sm" v-on:click="disconnect()">Déconnexion</button>
         <br><br>
@@ -73,6 +77,7 @@
 <script>
 import $ from 'jquery'
 import Endpoint from '@/services/Endpoint'
+import Tree from './Tree'
 export default {
   name: 'Home',
   data () {
@@ -81,8 +86,12 @@ export default {
       isLogged: false,
       loaded: false,
       password: '',
-      file: ''
+      file: '',
+      tree: ''
     }
+  },
+  components: {
+    Tree
   },
   created: function () {
     this.getApiculteurInformations()
@@ -93,7 +102,6 @@ export default {
   methods: {
     getApiculteurInformations: async function () {
       this.data = await Endpoint.apiculteurInformations(this.$session.get('login'))
-      this.traiterDonnees()
       this.loaded = true
     },
     disconnect: function () {
@@ -103,8 +111,6 @@ export default {
     },
     passwordModif: function () {
       $('#myModal').modal()
-    },
-    traiterDonnees: function () {
     },
     changePassword: function () {
       Endpoint.changePassword(this.data.data.informations[0].login, this.password)

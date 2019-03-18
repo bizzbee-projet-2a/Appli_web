@@ -3,6 +3,7 @@ var exports = module.exports = {}
 // Import de pgsql
 const pg = require('pg')
 const fs = require('fs')
+var arrayToTree = require('array-to-tree');
 // Configuration pgsql
 const Bizbee = new pg.Pool({
   user: 'postgres',
@@ -42,11 +43,44 @@ exports.getRucherByProprio =  function (idApiculteur) {
   });
 }
 
+exports.listeRucher =  function (idApiculteur) {
+  return new Promise(function(resolve, reject) {
+
+    const sql = `select id_composant as id_rucher, nom, date_creation
+                  from bizzbee._permission
+                  inner join bizzbee._rucher on bizzbee._rucher.id = bizzbee._permission.id_composant
+                  inner join bizzbee._composant on bizzbee._permission.id_composant = bizzbee._composant.id
+                  WHERE id_apiculteur = ${idApiculteur}`
+
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      var response = JSON.parse(JSON.stringify(res.rows))
+      for (var i = 0; i < response.length; i++) {
+        // Ajout de l'img (png base64 à chaque rucher)
+        const path = `./data/img/${response[i].id_rucher}.png`
+        if(fs.existsSync(path)) {
+          response[i].img = new Buffer(fs.readFileSync(path)).toString('base64')
+        } else {
+          response[i].img = ''
+        }
+      }
+      return resolve(response)
+    })
+  });
+
+}
+
 
 exports.test =  function (idApiculteur) {
   return new Promise(function(resolve, reject) {
-    const sql = "with a as (SELECT * from bizzbee._permission inner join bizzbee._composant on bizzbee._permission.id_composant = bizzbee._composant.id where id_apiculteur = 1)"
-    + "select * from a left outer join bizzbee._rucher on bizzbee._rucher.id = a.id_composant"
+    const sql = `with permission as (
+              	SELECT id_composant as permission from bizzbee._permission where id_apiculteur = ${idApiculteur}
+                )
+                ,component as (
+                	select * from permission inner join bizzbee._composant on permission.permission = bizzbee._composant.id
+                )
+                select component.id, nom, date_creation, COALESCE(id_parent, -1) as id_parent, COALESCE(bizzbee._rucher.id,-1) as isRucher from component left join bizzbee._rucher on bizzbee._rucher.id = component.id`
     Bizbee.query(sql, (err, res) => {
       if (err)
         return reject(err)
@@ -95,22 +129,12 @@ exports.getApiculteurInformations = function (login) {
 // Arbre des ruche / ruchers
 // MERCI STACK OVER FLOW TOUJOURS LA POUR MOI QUAND JE SAIS PAS CODER
 exports.getTree = async function (id) {
-  var all = await exports.allComposant(1)
-  console.log(all)
-  var map = {};
-    for(var i = 0; i < all.length; i++){
-        var obj = all[i];
-        obj.enfant= [];
-        map[obj.id] = obj;
-        var parent = obj.id_parent || '-';
-        if(!map[parent]){
-            map[parent] = {
-                enfant: []
-            };
-        }
-        map[parent].enfant.push(obj);
-    }
-    return map['-'].enfant;
+  var all = await exports.test(1)
+  return arrayToTree(all, {
+    parentProperty: 'id_parent',
+    customID: 'id',
+    childrenProperty: 'child'
+  })
 }
 
 exports.apiculteur = async function(login) {
@@ -226,6 +250,45 @@ exports.getInfoRuche = async function(idRuche) {
   obj.humidite = await exports.getHumidite(idRuche)
   obj.temperature = await exports.getTemperature(idRuche)
   obj.poids = await exports.getPoids(idRuche)
+  obj.actual = {
+    humidite:obj.humidite[Object.keys(obj.humidite).length - 1],
+    temperature:obj.temperature[Object.keys(obj.temperature).length - 1],
+    poids:obj.poids[Object.keys(obj.poids).length - 1]
+  }
+  const path = `./data/img/${obj.id}.png`
+  if(fs.existsSync(path)) {
+    obj.img = new Buffer(fs.readFileSync(path)).toString('base64')
+  } else {
+    obj.img = ''
+  }
+  return obj
+}
+
+exports.getRucheActualData = async function(idRuche) {
+  const rucheData = await exports.getComposant(idRuche)
+  var obj = {}
+  obj.id = idRuche;
+  obj.name = rucheData[0].nom;
+  obj.date = rucheData[0].date_creation;
+  obj.humidite = await exports.getHumidite(idRuche)
+  obj.temperature = await exports.getTemperature(idRuche)
+  obj.poids = await exports.getPoids(idRuche)
+  obj.actual = {
+    humidite:obj.humidite[Object.keys(obj.humidite).length - 1],
+    temperature:obj.temperature[Object.keys(obj.temperature).length - 1],
+    poids:obj.poids[Object.keys(obj.poids).length - 1]
+  }
+  const path = `./data/img/${obj.id}.png`
+  if(fs.existsSync(path)) {
+    obj.img = new Buffer(fs.readFileSync(path)).toString('base64')
+  } else {
+    obj.img = ''
+  }
+
+  delete obj.humidite
+  delete obj.poids
+  delete obj.temperature
+
   return obj
 }
 

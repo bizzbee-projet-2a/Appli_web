@@ -52,20 +52,20 @@ app.post('/changePassword', (req, res) => {
 app.get('/test', (req, res) => {
   const apiculteur = req.query.apiculteur
   console.log(apiculteur)
-  Api.test( apiculteur).then(function(rows){
+  Api.getTree( apiculteur).then(function(rows){
     res.status(200).send(rows)
     console.log(rows)
   }).catch(function(err){
     res.send(err)
   })
 })
+
 app.post('/sendImage', (req, res) => {
   const image = req.body.file
   const id = req.body.idRuche
-  console.log('Gonna change dude id: ' + id);
   fs.writeFile('./data/img/' + id +'.png', image, {encoding: 'base64'}, function(err) {
-    if(err) console.log(err);
-    console.log('success');
+    if(err) res.send(201);
+    res.send(200)
   })
 })
 
@@ -91,6 +91,23 @@ app.get('/rucheInfos', (req, res) => {
   })
 })
 
+app.get('/getRucheActualData', (req, res) => {
+  const ruche = req.query.ruche
+  Api.getRucheActualData( ruche).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+app.get('/listeRucher', (req, res) => {
+  const apiculteur = req.query.apiculteur
+  Api.listeRucher(apiculteur).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.status(201).send(err)
+  })
+})
 
 app.get('/estRucher', (req, res) => {
   const ruche = req.query.ruche
@@ -103,11 +120,10 @@ app.get('/estRucher', (req, res) => {
   })
 })
 
-
 // Arbre ruche /rucher
 app.get('/getTree', (req, res) => {
-  const ruche = req.query.ruche
-  Api.getTree(ruche).then( function (rows)  {
+  const apiculteur = req.query.apiculteur
+  Api.getTree(apiculteur).then( function (rows)  {
     res.status(200).send(rows)
   }).catch( function (err){
     res.send(err)
