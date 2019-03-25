@@ -17,7 +17,6 @@
           </div>
           <input type="submit" name="" value="Connexion" class="btn btn-primary">
         </form>
-        {{ test }}
     </div>
   </div>
 </template>

@@ -7,10 +7,10 @@ var passwordHash = require('password-hash')
 var arrayToTree = require('array-to-tree');
 // Configuration pgsql
 const Bizbee = new pg.Pool({
-  user: 'postgres',
+  user: 'bizzbee',
   host: 'localhost',
-  database: 'postgres',
-  password: '',
+  database: 'bizzbee',
+  password: 'bizzbee',
   port: 5432
 });
 
@@ -28,10 +28,18 @@ exports.tryConnect = function (login, password) {
             if(err)
               return reject(err)
             var rep = JSON.parse(JSON.stringify(res))
+
             console.log(rep)
+            if (rep.rows.length != 0 ) {
+                var idFind = rep.rows[0].id
+                var tryConnect = passwordHash.verify(password, rep.rows[0].mdp)
+            } else {
+                var idFind = -1
+                var tryConnect = false
+            }
             resolve({
-            id: rep.rows[0].id,
-            ok: passwordHash.verify(password, rep.rows[0].mdp)})
+            id: idFind,
+            ok: tryConnect})
         });
     });
 }
