@@ -257,7 +257,7 @@ app.get('/getTree', (req, res) => {
 })
 
 app.get('/racine', (req, res) => {
-  Api.Racine(apiculteur).then( function (rows)  {
+  Api.Racine().then( function (rows)  {
     res.status(200).send(rows)
   }).catch( function (err){
     res.send(err)
