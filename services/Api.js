@@ -7,10 +7,10 @@ var passwordHash = require('password-hash')
 var arrayToTree = require('array-to-tree');
 // Configuration pgsql
 const Bizbee = new pg.Pool({
-  user: 'postgres',
+  user: 'bizzbee',
   host: 'localhost',
-  database: 'postgres',
-  password: '',
+  database: 'bizzbee',
+  password: 'bizzbee',
   port: 5432
 });
 
