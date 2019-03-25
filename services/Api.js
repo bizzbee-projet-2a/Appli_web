@@ -3,13 +3,14 @@ var exports = module.exports = {}
 // Import de pgsql
 const pg = require('pg')
 const fs = require('fs')
+var passwordHash = require('password-hash')
 var arrayToTree = require('array-to-tree');
 // Configuration pgsql
 const Bizbee = new pg.Pool({
-  user: 'bizzbee',
+  user: 'postgres',
   host: 'localhost',
-  database: 'bizzbee',
-  password: 'bizzbee',
+  database: 'postgres',
+  password: '',
   port: 5432
 });
 
@@ -26,7 +27,8 @@ exports.tryConnect = function (login, password) {
         Bizbee.query(sql, (err, res) => {
             if(err)
               return reject(err)
-            resolve(JSON.parse(JSON.stringify(res)))
+            var rep = JSON.parse(JSON.stringify(res))
+            resolve(passwordHash.verify(password, rep.rows[0].mdp))
         });
     });
 }
@@ -45,7 +47,7 @@ exports.getRucherByProprio =  function (idApiculteur) {
 
 exports.Racine =  function () {
   return new Promise(function(resolve, reject) {
-    const sql = "SELECT * bizzbe._composant where id_parent = -1";
+    const sql = "SELECT * FROM bizzbee._composant WHERE id_parent is null ";
     Bizbee.query(sql, (err, res) => {
       if (err)
         return reject(err)

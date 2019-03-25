@@ -5,6 +5,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const Api = require('./services/Api.js')
 const fs = require('fs')
+var passwordHash = require('password-hash')
 
 // Parametrage d'express pour permetre le CORS et utiliser le body des requêtes POST
 app.use(bodyParser.json({limit: '2000kb'}));
@@ -90,8 +91,8 @@ app.post('/retirerAdministrateur', (req, res) => {
 })
 
 app.post('/ajouterUtilisateur', (req, res) => {
-  const login = req.body.login
-  const password = req.body.password
+  const login    = req.body.login
+  const password = passwordHash.generate(req.body.password);
   Api.ajouterUtilisateur(login, password).then(function(rows){
       res.sendStatus(200)
   }).catch(function(error){
