@@ -43,6 +43,104 @@ exports.getRucherByProprio =  function (idApiculteur) {
   });
 }
 
+
+exports.getComponents =  function (login) {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT nom,id_composant from bizzbee._apiculteur
+                  INNER JOIN bizzbee._permission
+                  ON bizzbee._permission.id_apiculteur = bizzbee._apiculteur.id
+                  INNER JOIN bizzbee._composant
+                  ON bizzbee._composant.id = bizzbee._permission.id_composant
+                  WHERE login = '${login}'`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.getAllUsers =  function () {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT * FROM bizzbee._apiculteur`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.getComponentUnadded =  function (user) {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT id,nom FROM bizzbee._composant
+                WHERE ID NOT IN (
+                SELECT bizzbee._permission.id_composant
+                FROM bizzbee._apiculteur
+                INNER JOIN bizzbee._permission
+                ON bizzbee._permission.id_apiculteur = bizzbee._apiculteur.id
+                where bizzbee._apiculteur.id = '${user}')`
+      console.log(sql);
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.getComponentAdded =  function (user) {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT id_composant, nom
+                 FROM bizzbee._permission
+                 INNER JOIN bizzbee._composant
+                 ON bizzbee._permission.id_composant = bizzbee._composant.id
+                 WHERE id_apiculteur = ${user}`
+
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.addComponentToUser =  function (user, component) {
+  return new Promise(function(resolve, reject) {
+    const sql = `INSERT INTO bizzbee._permission VALUES (${user},${component})`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.removeComponentToUser =  function (user, component) {
+  return new Promise(function(resolve, reject) {
+    const sql = `DELETE FROM bizzbee._permission
+                 WHERE id_apiculteur = ${user}
+                 AND id_composant = ${component}`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.ajouterUtilisateur =  function (login, password) {
+  return new Promise(function(resolve, reject) {
+    const sql = `INSERT INTO bizzbee._apiculteur(login,mdp) VALUES('${login}','${password}')`
+    console.log(sql);
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
 exports.listeRucher =  function (idApiculteur) {
   return new Promise(function(resolve, reject) {
 
@@ -52,17 +150,19 @@ exports.listeRucher =  function (idApiculteur) {
                   inner join bizzbee._composant on bizzbee._permission.id_composant = bizzbee._composant.id
                   WHERE id_apiculteur = ${idApiculteur}`
 
-    Bizbee.query(sql, (err, res) => {
+    Bizbee.query(sql, img,  (err, res) => {
       if (err)
         return reject(err)
       var response = JSON.parse(JSON.stringify(res.rows))
-      for (var i = 0; i < response.length; i++) {
-        // Ajout de l'img (png base64 à chaque rucher)
-        const path = `./data/img/${response[i].id_rucher}.png`
-        if(fs.existsSync(path)) {
-          response[i].img = new Buffer(fs.readFileSync(path)).toString('base64')
-        } else {
-          response[i].img = ''
+      if (img == 1) {
+        for (var i = 0; i < response.length; i++) {
+          // Ajout de l'img (png base64 à chaque rucher)
+          const path = `./data/img/${response[i].id_rucher}.png`
+          if(fs.existsSync(path)) {
+            response[i].img = new Buffer(fs.readFileSync(path)).toString('base64')
+          } else {
+            response[i].img = ''
+          }
         }
       }
       return resolve(response)
@@ -70,6 +170,70 @@ exports.listeRucher =  function (idApiculteur) {
   });
 
 }
+
+exports.contenuRucher =  function (idRucher) {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT  nom, id from bizzbee._permission
+                inner join bizzbee._composant
+                on bizzbee._composant.id = bizzbee._permission.id_composant
+                where bizzbee._composant.id_parent = ${idRucher}`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.getUsers =  function () {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT id,login FROM bizzbee._apiculteur WHERE id NOT IN (SELECT id from bizzbee._administrateur)`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.getAdmins =  function () {
+  return new Promise(function(resolve, reject) {
+    const sql = `SELECT  bizzbee._administrateur.id,login
+                 FROM bizzbee._administrateur
+                 INNER JOIN bizzbee._apiculteur
+                 ON bizzbee._administrateur.id = bizzbee._apiculteur.id`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.ajouterAdministrateur =  function (id) {
+  return new Promise(function(resolve, reject) {
+    const sql = `INSERT INTO bizzbee._administrateur VALUES (${id})`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+exports.retirerAdministrateur =  function (id) {
+  return new Promise(function(resolve, reject) {
+    const sql = `DELETE FROM bizzbee._administrateur WHERE id = ${id}`
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
+
+
+
 
 
 exports.test =  function (idApiculteur) {
@@ -129,7 +293,7 @@ exports.getApiculteurInformations = function (login) {
 // Arbre des ruche / ruchers
 // MERCI STACK OVER FLOW TOUJOURS LA POUR MOI QUAND JE SAIS PAS CODER
 exports.getTree = async function (id) {
-  var all = await exports.test(1)
+  var all = await exports.test(id)
   return arrayToTree(all, {
     parentProperty: 'id_parent',
     customID: 'id',

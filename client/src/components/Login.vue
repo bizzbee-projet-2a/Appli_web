@@ -29,7 +29,8 @@ export default {
       data: 'Accueil bizzbee',
       login: '',
       password: '',
-      err: ''
+      err: '',
+      test: ''
     }
   },
   created: function () {
@@ -43,6 +44,8 @@ export default {
       const isOk = await Endpoint.tryConnection(this.login, this.password)
       if (isOk.status === 200) {
         this.err = ''
+        this.test = isOk
+        this.$session.set('id', isOk.data.rows[0].id)
         this.$session.set('login', this.login)
         this.$router.push({name: 'Home'})
       } else {

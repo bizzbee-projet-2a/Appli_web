@@ -2,7 +2,6 @@
   <div class="Home">
     <div class="container">
       <div v-if="isLogged">
-
         <!-- Modal -->
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -101,7 +100,7 @@ export default {
   },
   methods: {
     getApiculteurInformations: async function () {
-      this.data = await Endpoint.apiculteurInformations(this.$session.get('login'))
+      this.data = await Endpoint.apiculteurInformations(this.$session.get('id'))
       this.loaded = true
     },
     disconnect: function () {

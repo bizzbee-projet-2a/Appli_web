@@ -25,7 +25,7 @@ app.post('/login', (req, res) => {
     // Si il y a un user, return 200
     console.log(rows);
     if(rows.rowCount === 1) {
-      res.sendStatus(200)
+      res.status(200).send(rows)
     } else {
     // Sinon return 401
       res.sendStatus(201)
@@ -48,6 +48,57 @@ app.post('/changePassword', (req, res) => {
   })
 })
 
+app.post('/ajouterAdministrateur', (req, res) => {
+  const user = req.body.id
+  Api.ajouterAdministrateur(user).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
+
+app.post('/addComponentToUser', (req, res) => {
+  console.log('Try d ajout');
+  const user = req.body.user
+  const component = req.body.component
+  Api.addComponentToUser(user, component).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
+app.post('/removeComponentToUser', (req, res) => {
+  const user = req.body.user
+  const component = req.body.component
+  Api.removeComponentToUser(user, component).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
+
+app.post('/retirerAdministrateur', (req, res) => {
+  const user = req.body.id
+  Api.retirerAdministrateur(user).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
+app.post('/ajouterUtilisateur', (req, res) => {
+  const login = req.body.login
+  const password = req.body.password
+  Api.ajouterUtilisateur(login, password).then(function(rows){
+      res.sendStatus(200)
+  }).catch(function(error){
+      res.sendStatus(201)
+  })
+})
+
 
 app.get('/test', (req, res) => {
   const apiculteur = req.query.apiculteur
@@ -59,6 +110,62 @@ app.get('/test', (req, res) => {
     res.send(err)
   })
 })
+
+app.get('/getComponents', (req, res) => {
+  const apiculteur = req.query.user
+  Api.getComponents( apiculteur).then(function(rows){
+    res.status(200).send(rows)
+    console.log(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+
+app.get('/getUsers', (req, res) => {
+  Api.getUsers().then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+app.get('/getAdmins', (req, res) => {
+  Api.getAdmins().then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+app.get('/getAllUsers', (req,res)=> {
+  Api.getAllUsers().then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+app.get('/getComponentUnadded', (req,res)=> {
+  var user = req.query.user
+  Api.getComponentUnadded(user).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+
+app.get('/getComponentAdded', (req,res)=> {
+  var user = req.query.user
+  Api.getComponentAdded(user).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.send(err)
+  })
+})
+
+
 
 app.post('/sendImage', (req, res) => {
   const image = req.body.file
@@ -102,12 +209,31 @@ app.get('/getRucheActualData', (req, res) => {
 
 app.get('/listeRucher', (req, res) => {
   const apiculteur = req.query.apiculteur
-  Api.listeRucher(apiculteur).then(function(rows){
+  const avecImage = req.query.img
+  Api.listeRucher(apiculteur, avecImage).then(function(rows){
     res.status(200).send(rows)
   }).catch(function(err){
     res.status(201).send(err)
   })
 })
+
+app.get('/informationsAPI', (req, res) => {
+    res.status(200).send('API bizzbee version 1.0')
+})
+
+app.get('/contenuRucher', (req, res) => {
+  const rucher = req.query.rucher
+  Api.contenuRucher(rucher).then(function(rows){
+    res.status(200).send(rows)
+  }).catch(function(err){
+    res.status(201).send(err)
+  })
+})
+
+
+
+
+
 
 app.get('/estRucher', (req, res) => {
   const ruche = req.query.ruche

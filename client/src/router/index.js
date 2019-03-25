@@ -4,6 +4,7 @@ import Home from '@/components/Home'
 import Composant from '@/components/Composant'
 import Login from '@/components/Login'
 import Index from '@/components/Index'
+import EspaceAdministrateur from '@/components/EspaceAdministrateur'
 
 Vue.use(Router)
 
@@ -32,6 +33,11 @@ export default new Router({
       path: '/',
       name: 'Index',
       component: Index
+    },
+    {
+      path: '/EspaceAdministrateur',
+      name: 'EspaceAdministrateur',
+      component: EspaceAdministrateur
     }
   ]
 })
