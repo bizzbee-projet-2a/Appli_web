@@ -43,6 +43,16 @@ exports.getRucherByProprio =  function (idApiculteur) {
   });
 }
 
+exports.Racine =  function (idApiculteur) {
+  return new Promise(function(resolve, reject) {
+    const sql = "SELECT * bizzbe._composant where id_parent = -1";
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(JSON.parse(JSON.stringify(res.rows)))
+    })
+  });
+}
 
 exports.getComponents =  function (login) {
   return new Promise(function(resolve, reject) {

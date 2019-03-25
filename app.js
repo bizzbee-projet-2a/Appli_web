@@ -256,6 +256,14 @@ app.get('/getTree', (req, res) => {
   })
 })
 
+app.get('/racine', (req, res) => {
+  Api.Racine(apiculteur).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
 /**
 
 C R U D
@@ -295,6 +303,8 @@ app.post('/ajout_poids', (req, res) => {
     res.send(err)
   })
 })
+
+
 
 
 
