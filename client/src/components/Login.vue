@@ -17,6 +17,7 @@
           </div>
           <input type="submit" name="" value="Connexion" class="btn btn-primary">
         </form>
+        {{ test }}
     </div>
   </div>
 </template>
@@ -42,12 +43,13 @@ export default {
     },
     tryConnection: async function () {
       const isOk = await Endpoint.tryConnection(this.login, this.password)
+      this.test = isOk
       if (isOk.status === 200) {
         this.err = ''
-        this.test = isOk
-        this.$session.set('id', isOk.data.rows[0].id)
+        this.$session.set('id', isOk.data.id)
         this.$session.set('login', this.login)
-        this.$router.push({name: 'Home'})
+        console.log('Session set')
+        this.$router.push({path: 'Home'})
       } else {
         this.err = 'Connexion refusée'
       }

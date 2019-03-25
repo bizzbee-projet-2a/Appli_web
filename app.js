@@ -24,8 +24,7 @@ app.post('/login', (req, res) => {
   // J'execute la requête dans mon module Api
   Api.tryConnect(login, password).then(function(rows){
     // Si il y a un user, return 200
-    console.log(rows);
-    if(rows.rowCount === 1) {
+    if(rows.ok == true) {
       res.status(200).send(rows)
     } else {
     // Sinon return 401
@@ -33,6 +32,7 @@ app.post('/login', (req, res) => {
     }
   }).catch(function(error){
     // Si error : return 401
+    console.log(error);
       res.sendStatus(201)
   })
 

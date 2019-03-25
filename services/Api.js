@@ -7,10 +7,10 @@ var passwordHash = require('password-hash')
 var arrayToTree = require('array-to-tree');
 // Configuration pgsql
 const Bizbee = new pg.Pool({
-  user: 'bizzbee',
+  user: 'postgres',
   host: 'localhost',
-  database: 'bizzbee',
-  password: 'bizzbee',
+  database: 'postgres',
+  password: '',
   port: 5432
 });
 
@@ -21,14 +21,17 @@ exports.tryConnect = function (login, password) {
     // Je retourne une promesse pour gerer l'asynchronité
     return new Promise (( resolve, reject) => {
         // La requête est a passé en requête parametré
-        var sql = "SELECT id, login, mdp FROM bizzbee._apiculteur WHERE login = '"+login+"' AND  mdp = '"+password+"'"
+        var sql = "SELECT id, login, mdp FROM bizzbee._apiculteur WHERE login = '"+login+"'"
         console.log(sql);
         // Execution de la requete
         Bizbee.query(sql, (err, res) => {
             if(err)
               return reject(err)
             var rep = JSON.parse(JSON.stringify(res))
-            resolve(passwordHash.verify(password, rep.rows[0].mdp))
+            console.log(rep)
+            resolve({
+            id: rep.rows[0].id,
+            ok: passwordHash.verify(password, rep.rows[0].mdp)})
         });
     });
 }
