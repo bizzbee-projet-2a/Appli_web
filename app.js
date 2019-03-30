@@ -257,6 +257,16 @@ app.get('/getTree', (req, res) => {
   })
 })
 
+app.get('/getTreeFromRucher', (req, res) => {
+  const rucher = req.query.rucher
+  Api.getTreeFromRucher(rucher).then( function (rows)  {
+    res.status(200).send(rows)
+  }).catch( function (err){
+    res.send(err)
+  })
+})
+
+
 app.get('/racine', (req, res) => {
   Api.Racine().then( function (rows)  {
     res.status(200).send(rows)

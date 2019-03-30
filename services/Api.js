@@ -28,8 +28,6 @@ exports.tryConnect = function (login, password) {
             if(err)
               return reject(err)
             var rep = JSON.parse(JSON.stringify(res))
-
-            console.log(rep)
             if (rep.rows.length != 0 ) {
                 var idFind = rep.rows[0].id
                 var tryConnect = passwordHash.verify(password, rep.rows[0].mdp)
@@ -37,6 +35,7 @@ exports.tryConnect = function (login, password) {
                 var idFind = -1
                 var tryConnect = false
             }
+
             resolve({
             id: idFind,
             ok: tryConnect})
@@ -324,6 +323,40 @@ exports.getTree = async function (id) {
   })
 }
 
+
+exports.getTreeFromRucher = async function (rucher) {
+
+  return new Promise(function(resolve, reject) {
+    var sql =  `WITH RECURSIVE tree as (
+
+                	SELECT id,nom,date_creation,COALESCE(id_parent,-1) as id_parent
+                	FROM bizzbee._composant
+                	WHERE id = ${rucher}
+
+
+              	UNION ALL
+
+                	SELECT _composant.id, _composant.nom, _composant.date_creation, COALESCE(_composant.id_parent,-1) as id_parent
+                	FROM bizzbee._composant, tree
+                	WHERE bizzbee._composant.id_parent = tree.id
+
+              )
+              SELECT * FROM tree`;
+
+    Bizbee.query(sql, (err, res) => {
+      if (err)
+        return reject(err)
+      resolve(arrayToTree(JSON.parse(JSON.stringify(res.rows)), {
+        parentProperty: 'id_parent',
+        customID: 'id',
+        childrenProperty: 'child'
+      }))
+    })
+  });
+
+}
+
+
 exports.apiculteur = async function(login) {
   var obj = {}
   obj.informations = await exports.getApiculteurInformations(login)
@@ -434,6 +467,7 @@ exports.getInfoRuche = async function(idRuche) {
   obj.id = idRuche;
   obj.name = rucheData[0].nom;
   obj.date = rucheData[0].date_creation;
+  obj.id_parent = rucheData[0].id_parent;
   obj.humidite = await exports.getHumidite(idRuche)
   obj.temperature = await exports.getTemperature(idRuche)
   obj.poids = await exports.getPoids(idRuche)
